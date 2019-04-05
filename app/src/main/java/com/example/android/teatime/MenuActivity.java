@@ -28,35 +28,32 @@ import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.test.espresso.IdlingResource;
 
-public class MenuActivity extends AppCompatActivity {
+public class MenuActivity extends AppCompatActivity implements ImageDownloader.DelayerCallback {
 
     Intent mTeaIntent;
 
     public final static String EXTRA_TEA_NAME = "com.example.android.teatime.EXTRA_TEA_NAME";
+    private GridView gridview;
+    private SimpleIdlingResource idlingResource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-        Toolbar menuToolbar = (Toolbar) findViewById(R.id.menu_toolbar);
+        Toolbar menuToolbar = findViewById(R.id.menu_toolbar);
         setSupportActionBar(menuToolbar);
         getSupportActionBar().setTitle(getString(R.string.menu_title));
 
-        // Create an ArrayList of teas
-        final ArrayList<Tea> teas = new ArrayList<>();
-        teas.add(new Tea(getString(R.string.black_tea_name), R.drawable.black_tea));
-        teas.add(new Tea(getString(R.string.green_tea_name), R.drawable.green_tea));
-        teas.add(new Tea(getString(R.string.white_tea_name), R.drawable.white_tea));
-        teas.add(new Tea(getString(R.string.oolong_tea_name), R.drawable.oolong_tea));
-        teas.add(new Tea(getString(R.string.honey_lemon_tea_name), R.drawable.honey_lemon_tea));
-        teas.add(new Tea(getString(R.string.chamomile_tea_name), R.drawable.chamomile_tea));
+        if (BuildConfig.DEBUG) {
+            idlingResource = new SimpleIdlingResource();
+        }
 
-        // Create a {@link TeaAdapter}, whose data source is a list of {@link Tea}s.
-        // The adapter know how to create grid items for each item in the list.
-        GridView gridview = (GridView) findViewById(R.id.tea_grid_view);
-        TeaMenuAdapter adapter = new TeaMenuAdapter(this, R.layout.grid_item_layout, teas);
-        gridview.setAdapter(adapter);
+        ImageDownloader.downloadImage(getApplicationContext(), this, idlingResource);
+
+
+        gridview = findViewById(R.id.tea_grid_view);
 
 
         // Set a click listener on that View
@@ -76,4 +73,13 @@ public class MenuActivity extends AppCompatActivity {
 
     }
 
+    public SimpleIdlingResource getIdlingResource() {
+        return idlingResource;
+    }
+
+    @Override
+    public void onDone(ArrayList<Tea> teas) {
+        TeaMenuAdapter adapter = new TeaMenuAdapter(this, R.layout.grid_item_layout, teas);
+        gridview.setAdapter(adapter);
+    }
 }
