@@ -17,6 +17,8 @@
 package com.example.android.teatime.model;
 
 
+import androidx.annotation.Nullable;
+
 /**
  * {@link Tea} represents a tea that the user can select from the menu.
  * It contains a tea name and an associated.
@@ -40,5 +42,11 @@ public class Tea {
         return mImageResourceId;
     }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return obj instanceof Tea &&
+                this.mImageResourceId == ((Tea) obj).mImageResourceId &&
+                this.mTeaName.equals(((Tea) obj).mTeaName);
+    }
 }
 
